@@ -1,0 +1,177 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.wasdev.wlp.sample</groupId>
+        <artifactId>daytrader3</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+
+	<name>WAS Liberty Sample - Java EE6 Benchmark Sample - EAR</name>
+
+    <properties>
+        <!-- Update this to match the port number in the websocketSample server.xml
+        This is needed to run the tests -->
+        <libertyTestPort>9083</libertyTestPort>
+        <skipFVT>false</skipFVT>
+        <app.name>daytrader3-ee6</app.name>
+        <testServerHttpPort>9080</testServerHttpPort>
+        <testServerHttpsPort>9443</testServerHttpsPort>
+        <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
+        <packaging.type>usr</packaging.type>
+    </properties>
+
+    <packaging>ear</packaging>
+	<artifactId>daytrader3-ee6</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<dependencies>
+        <dependency>
+            <groupId>net.wasdev.wlp.sample</groupId>
+            <artifactId>daytrader3-ee6-ejb</artifactId>       
+            <version>1.0-SNAPSHOT</version>
+            <type>ejb</type>
+        </dependency>
+	    <dependency>
+            <groupId>net.wasdev.wlp.sample</groupId>
+            <artifactId>daytrader3-ee6-web</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>net.wasdev.wlp.sample</groupId>
+            <artifactId>daytrader3-ee6-rest</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+
+	<build>
+        <plugins>
+	        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <version>6</version>
+                    <fileNameMapping>no-version</fileNameMapping>
+           				<modules>
+             				<ejbModule>
+               					<groupId>net.wasdev.wlp.sample</groupId>
+               					<artifactId>daytrader3-ee6-ejb</artifactId>
+               					<bundleFileName>dt-ejb.jar</bundleFileName>
+             				</ejbModule>
+             				<webModule>
+               					<groupId>net.wasdev.wlp.sample</groupId>
+               					<artifactId>daytrader3-ee6-rest</artifactId>
+               					<bundleFileName>Rest.war</bundleFileName>
+             				</webModule>
+             				<webModule>
+               					<groupId>net.wasdev.wlp.sample</groupId>
+               					<artifactId>daytrader3-ee6-web</artifactId>
+               					<bundleFileName>web.war</bundleFileName>
+             				</webModule>
+          				</modules>
+                </configuration>
+	        </plugin>
+
+	        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+						<id>copy-resources1</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/shared/resources/Daytrader3_SampleDerbyLibs</outputDirectory>
+							<stripVersion>false</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derby</artifactId>
+                                    <version>10.10.1.1</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+						 <id>copy-resources2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/apps</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>net.wasdev.wlp.sample</groupId>
+                                    <artifactId>daytrader3-ee6</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <type>ear</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>2.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <assemblyArtifact>
+                        <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                        <artifactId>wlp-webProfile7</artifactId>
+                        <version>17.0.0.2</version>
+                        <type>zip</type>
+                    </assemblyArtifact>
+                    <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
+                    <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
+                    <jvmOptionsFile>${basedir}/src/main/liberty/config/jvm.options</jvmOptionsFile>
+                    <packageFile>${package.file}</packageFile>
+                    <include>${packaging.type}</include>
+                    <bootstrapProperties>
+                        <default.http.port>${testServerHttpPort}</default.http.port>
+                        <default.https.port>${testServerHttpsPort}</default.https.port>
+                    </bootstrapProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-liberty</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>install-server</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>package-app</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package-server</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+			
+            
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>net.wasdev.wlp.sample</groupId>
+    			<artifactId>daytrader3-ee6-ejb</artifactId>
+    			<version>1.0.0</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
+</project>
