@@ -22,7 +22,7 @@
         <jdbcDriver id="DerbyEmbedded" libraryRef="DerbyLib"/>
         <library id="DerbyLib" filesetRef="DerbyFileset"/>
         <fileset id="DerbyFileset"
-             dir="${server.config.dir}/resources/Daytrader3_SampleDerbyLibs"
+             dir="${server.config.dir}/resources/Daytrader3SampleDerbyLibs"
              includes="derby-10.10.1.1.jar" />
 
         <authData id="TradeDataSourceAuthData" user="db_username" password="db_password"/>
