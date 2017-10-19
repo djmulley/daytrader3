@@ -87,7 +87,7 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/config/resources/Daytrader3SampleDerbyLibs</outputDirectory>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/Daytrader3SampleDerbyLibs</outputDirectory>
 							<stripVersion>false</stripVersion>
                             <artifactItems>
                                 <artifactItem>
